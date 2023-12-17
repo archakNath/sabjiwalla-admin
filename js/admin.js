@@ -5,6 +5,8 @@ const edit_item_section = document.getElementById("edit-item-section");
 const dashboard_section = document.getElementById("dashboard-section");
 const pick_image = document.getElementById("pick-image");
 const images_container = document.getElementById("images-container");
+const add_item_button = document.getElementById("add-item-button");
+const add_item_section = document.getElementById("add-product");
 
 // setting initial settings
 change_screen(2)
@@ -32,3 +34,7 @@ function change_screen(choice) {
     }
 }
 
+add_item_button.onclick = () => {
+    add_item_section.style.display = "block";
+    add_item_button.style.display = "none";
+}

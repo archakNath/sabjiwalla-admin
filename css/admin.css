@@ -29,6 +29,10 @@ section#uploading-message{
     margin: auto;
 }
 
+#edit-item-section #add-product{
+    display: none;
+}
+
 #add-product h1{
     margin-bottom: 10px;
 }
