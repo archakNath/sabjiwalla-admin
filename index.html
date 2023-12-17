@@ -147,13 +147,7 @@
                 console.log('Data added to the database successfully');
                 upload_message.innerHTML = "Data added to database successfully"
                 setTimeout(() => {
-                    uploading_message.style.display = "none";
-                    product_name.value = "";
-                    product_description.value = "";
-                    product_price.value = "";
-                    product_base.value = "";
-                    product_category.value = "";
-                    product_discount.value = "";
+                    location.reload();
                 }, 2500);
             }).catch((error) => {
                 alert('Error adding data to the database:', error.message);
@@ -336,15 +330,20 @@
                     }
 
                     delete_button.onclick = function () {
-                        remove(ref(realdb, 'products/' + element.key))
+                        var result = window.confirm("Do you want to remove "+element.key+" ?");
+                        if (result) {
+                            remove(ref(realdb, 'products/' + element.key))
                             .then(() => {
                                 // Success: Delete completed
                                 alert("Delete successful");
+                                location.reload();
                             })
                             .catch((error) => {
                                 // Error: Something went wrong
                                 alert("Error deleting: " + error.message);
                             });
+                        }
+                        
                     }
 
 
