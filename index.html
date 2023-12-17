@@ -258,7 +258,7 @@
                     let image_preview = document.createElement("div");
                     let image_count = document.createElement("span");
                     let product_details = document.createElement("div");
-                    let product_name_in = document.createElement("input");
+                    let product_name_in = document.createElement("div");
                     let product_description_in = document.createElement("input");
                     let product_category_in = document.createElement("input");
                     let product_price_in = document.createElement("input");
@@ -268,8 +268,7 @@
                     let delete_button = document.createElement("button");
 
                     // product details has been filled
-                    product_name_in.value = element.val().Name;
-                    product_name_in.placeholder = "Name"
+                    product_name_in.textContent = element.val().Name;
                     product_description_in.value = element.val().Description;
                     product_description_in.placeholder = "Description"
                     product_category_in.value = element.val().Category; // Use .value here
@@ -318,7 +317,6 @@
                     // button logics
                     update_button.onclick = function () {
                         var productData = {
-                            Name: product_name_in.value,
                             Description: product_description_in.value,
                             Price: product_price_in.value,
                             Base: product_base_in.value,

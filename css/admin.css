@@ -156,3 +156,8 @@ section#uploading-message{
     background-color: #ddd;
     border-radius: 5px;
 }
+
+#list .product-details div{
+    padding: 8px;
+    font-size: 12px;
+}
