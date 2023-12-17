@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabjiiwala | Admin</title>
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/universal.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+
+<body>
+
+    <section id="uploading-message">
+        <span>UPLOADING...</span>
+    </section>
+
+    <header>
+        <button class="button1" id="dashboard-button">Dashboard</button>
+        <button class="button1" id="edit-item-button">Edit items</button>
+    </header>
+
+
+    <section id="dashboard-section">
+        Dashboard
+    </section>
+
+    <section id="edit-item-section">
+        <button id="add-item" class="button1">Add Item</button>
+        <div id="add-product">
+            <h1>Add Item</h1>
+            <div id="images-container">
+                <div id="pick-image">
+                    <img src="/assets/icon/add-white.png" alt="">
+                    Add Image
+                </div>
+            </div>
+            <input class="input" type="text" name="name" id="product-name" placeholder="Product Name">
+            <textarea name="" id="product-description" cols="" rows="2" class="input"
+                placeholder="Description (Optional)"></textarea>
+            <input type="number" name="" id="product-price" placeholder="Price per kg (₹)" class="input">
+            <input type="text" name="" id="product-base" placeholder="Base Quantity in g (eg. 500 = 500g)"
+                class="input">
+            <input type="number" name="" id="product-discount" placeholder="Discount (%)" class="input">
+            <input type="text" name="" id="product-category" placeholder="Category (eg. Fruit/Vegetable)" class="input">
+            <button class="button1" id="upload-button">Upload</button>
+        </div>
+        <div id="list"></div>
+    </section>
+
+    <script src="/js/admin.js"></script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
+        import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
+        import { getDatabase, ref, set, child, get, update, remove } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBz9wEi7QGFMIHIurcHoR6A-V9siWMUng",
+            authDomain: "sabjiiwala-ef33d.firebaseapp.com",
+            projectId: "sabjiiwala-ef33d",
+            storageBucket: "sabjiiwala-ef33d.appspot.com",
+            messagingSenderId: "133860441354",
+            appId: "1:133860441354:web:f29e8953a336bb5d8f4ef3",
+            measurementId: "G-DGXTDJWKM1"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // Initialization and declaration
+        const product_name = document.getElementById("product-name");
+        const product_description = document.getElementById("product-description");
+        const product_price = document.getElementById("product-price");
+        const product_base = document.getElementById("product-base");
+        const product_discount = document.getElementById("product-discount");
+        const product_category = document.getElementById("product-category");
+        const upload_message = document.querySelector("#uploading-message span");
+
+        // UPLOAD PROCESS 
+
+        let uploaded_links = [];
+        let no_of_images = 0;
+        async function UploadProcess() {
+            for (let i = 0; i < selected_images.length; i++) {
+                var ImgToUpload = selected_images[i];
+
+                if (ImgToUpload instanceof File == false) {
+                    continue;
+                }
+
+                const metaData = {
+                    contentType: ImgToUpload.type
+                }
+
+                const storage = getStorage();
+
+                const storageRef = sRef(storage, product_name.value + "/" + i);
+
+                const UploadTask = uploadBytesResumable(storageRef, ImgToUpload, metaData);
+
+                UploadTask.on('state-changed', (snapshot) => {
+                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                },
+                    (error) => {
+                        alert('Error: Image not uploaded');
+                    },
+                    () => {
+                        getDownloadURL(UploadTask.snapshot.ref).then((getDownloadURL) => {
+                            uploaded_links.push(getDownloadURL);
+                            if (uploaded_links.length == selected_images.length - 1) {
+                                savetoRealDB(JSON.stringify(Array.from(new Set(uploaded_links))));
+                                upload_message.innerHTML = "IMAGES UPLOADED"
+                            } else {
+                                uploaded_links.push(getDownloadURL);
+                                console.log(getDownloadURL);
+                                console.log(uploaded_links.length + " " + selected_images.length);
+                            }
+                        });
+                    });
+
+            }
+        }
+
+        // FUNCTION FOR REALTIME DATABASE 
+
+        var realdb = getDatabase();
+
+        function savetoRealDB(URL) {
+
+            set(ref(realdb, 'products/' + product_name.value), {
+                Name: product_name.value,
+                Image: URL,
+                Description: product_description.value,
+                Price: product_price.value,
+                Base: product_base.value,
+                Category: product_category.value,
+                Discount: product_discount.value
+            }).then(() => {
+                console.log('Data added to the database successfully');
+                upload_message.innerHTML = "Data added to database successfully"
+                setTimeout(() => {
+                    uploading_message.style.display = "none";
+                    product_name.value = "";
+                    product_description.value = "";
+                    product_price.value = "";
+                    product_base.value = "";
+                    product_category.value = "";
+                    product_discount.value = "";
+                }, 2500);
+            }).catch((error) => {
+                alert('Error adding data to the database:', error.message);
+            });
+
+        }
+
+        // pick image
+        var files;
+        var selected_images = []; // Initialize selected_images as an array
+
+        pick_image.addEventListener('click', function () {
+            var fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.multiple = true;
+            fileInput.click();
+            fileInput.addEventListener('change', function (event) {
+                files = event.target.files;
+                // Loop through the files and push each file to selected_images
+                for (var i = 0; i < files.length; i++) {
+                    selected_images.push(files[i]);
+                }
+                selected_images = selected_images.filter(function (item) {
+                    return item instanceof File;
+                });
+                console.log(selected_images);
+                displaySelectedImages(files);
+            });
+        });
+
+        function displaySelectedImages(files) {
+
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var image_preview = document.createElement('div');
+                    image_preview.style.backgroundImage = "url(" + e.target.result + ")";
+                    selected_images.push(e.target.result);
+                    image_preview.classList.add('image-preview');
+                    var cancel = document.createElement("img");
+                    cancel.src = "/assets/icon/cross-white.png";
+                    cancel.classList.add("remove-image");
+                    image_preview.appendChild(cancel);
+                    images_container.appendChild(image_preview);
+
+                    let cancel_buttons = document.querySelectorAll("#images-container .remove-image");
+                    let image_preview_list = document.querySelectorAll("#images-container .image-preview");
+                    for (let i = 0; i < cancel_buttons.length; i++) {
+                        let button = cancel_buttons[i];
+                        button.onclick = () => {
+                            image_preview_list[i].style.display = "none";
+                            selected_images.splice(i, 1);
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // UPLOAD BUTTON CLICK
+        const uploading_message = document.getElementById("uploading-message");
+        const upload_button = document.getElementById("upload-button");
+        upload_button.onclick = () => {
+            if (selected_images.length == 0) {
+                alert("select some image");
+            } else {
+                uploading_message.style.display = "flex";
+                UploadProcess();
+            }
+        }
+
+        // READ AND LIST DATA FROM DB
+        var database = getDatabase();
+        const datalist = document.getElementById('list');
+        var dataRef = ref(database);
+
+        get(child(dataRef, "products"))
+            .then((snapshot) => {
+                var values = [];
+                snapshot.forEach(element => {
+                    // element.val().ProductName;
+
+                    // <div class="list-item">
+                    //     <div class="image-preview">
+                    //         <span>+3</span>
+                    //     </div>
+                    //     <div class="product-details">
+                    //         <input type="text" name="" class="product-name" placeholder="Product Name">
+                    //         <input type="text" name="" class="product-description" placeholder="Description">
+                    //         <input type="text" class="product-category" placeholder="Category">
+                    //         <input type="number" class="product-price" placeholder="Price per kg">
+                    //         <input type="number" class="product-base" placeholder="Base Quantity">
+                    //         <input type="number" placeholder="Discount">
+                    //         <button class="update-button button1">UPDATE</button>
+                    //         <button class="delete-button button1">DELETE</button>
+                    //     </div>
+                    // </div>
+                    let list_item = document.createElement("div");
+                    let image_preview = document.createElement("div");
+                    let image_count = document.createElement("span");
+                    let product_details = document.createElement("div");
+                    let product_name_in = document.createElement("input");
+                    let product_description_in = document.createElement("input");
+                    let product_category_in = document.createElement("input");
+                    let product_price_in = document.createElement("input");
+                    let product_base_in = document.createElement("input");
+                    let product_discount_in = document.createElement("input");
+                    let update_button = document.createElement("button");
+                    let delete_button = document.createElement("button");
+
+                    // product details has been filled
+                    product_name_in.value = element.val().Name;
+                    product_name_in.placeholder = "Name"
+                    product_description_in.value = element.val().Description;
+                    product_description_in.placeholder = "Description"
+                    product_category_in.value = element.val().Category; // Use .value here
+                    product_category_in.placeholder = "Category"
+                    product_price_in.value = element.val().Price; // Use .value here
+                    product_price_in.placeholder = "Price per kg"
+                    product_base_in.value = element.val().Base; // Use .value here
+                    product_base_in.placeholder = "Base quantity in g"
+                    product_discount_in.value = element.val().Discount; // Use .value here
+                    product_discount_in.placeholder = "Discount in %"
+                    update_button.textContent = "UPDATE";
+                    delete_button.textContent = "DELETE";
+                    product_details.setAttribute('class', 'product-details');
+                    product_name_in.setAttribute('class', 'product-name');
+                    product_description_in.setAttribute('class', 'product-description');
+                    product_category_in.setAttribute('class', 'product-category');
+                    product_price_in.setAttribute('class', 'product-price');
+                    product_base_in.setAttribute('class', 'product-base');
+                    product_discount_in.setAttribute('class', 'product-discount');
+                    update_button.setAttribute('class', 'update-button button1');
+                    delete_button.setAttribute('class', 'delete-button button1');
+
+                    product_details.appendChild(product_name_in);
+                    product_details.appendChild(product_description_in);
+                    product_details.appendChild(product_category_in);
+                    product_details.appendChild(product_price_in);
+                    product_details.appendChild(product_base_in);
+                    product_details.appendChild(product_discount_in);
+                    product_details.appendChild(update_button);
+                    product_details.appendChild(delete_button);
+
+                    // image preview has been filled
+                    var image_links = JSON.parse(element.val().Image);
+                    image_count.textContent = '+' + (image_links.length - 1);
+                    image_preview.style.backgroundImage = 'url(' + image_links[0] + ')';
+                    image_preview.setAttribute('class', 'image-preview');
+                    image_preview.appendChild(image_count);
+
+
+                    // putting elements inside list-item
+                    list_item.setAttribute('class', 'list-item');
+                    list_item.appendChild(image_preview);
+                    list_item.appendChild(product_details);
+                    datalist.appendChild(list_item);
+
+                    // button logics
+                    update_button.onclick = function () {
+                        var productData = {
+                            Name: product_name_in.value,
+                            Description: product_description_in.value,
+                            Price: product_price_in.value,
+                            Base: product_base_in.value,
+                            Category: product_category_in.value,
+                            Discount: product_discount_in.value
+                        };
+
+                        update(ref(realdb, 'products/' + element.key), productData)
+                            .then(() => {
+                                // Success: Update completed
+                                alert("Update successful");
+                            })
+                            .catch((error) => {
+                                // Error: Something went wrong
+                                alert("Error updating: " + error.message);
+                            });
+                    }
+
+                    delete_button.onclick = function () {
+                        remove(ref(realdb, 'products/' + element.key))
+                            .then(() => {
+                                // Success: Delete completed
+                                alert("Delete successful");
+                            })
+                            .catch((error) => {
+                                // Error: Something went wrong
+                                alert("Error deleting: " + error.message);
+                            });
+                    }
+
+
+                })
+            })
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,61 @@
+:root {
+    --orange-color: #ff5b5b;
+    --orange-color-light: #fe8b8b;
+    --green-color: #008015;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: local('Inter Regular'), url('assets/font/static/Inter-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'InterRegular', sans-serif;
+}
+
+button.button1 {
+    padding: 10px 20px;
+    border: 0;
+    background-color: var(--orange-color);
+    color: white;
+    border-radius: 10px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+button.button1:hover, button.button1.active {
+    background-color: var(--orange-color-light);
+}
+
+button.button2 {
+    padding: 10px 20px;
+    border: 0;
+    background-color: var(--orange-color);
+    color: white;
+    border-radius: 10px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+button.button2:hover, button.button2.active {
+    background-color: var(--orange-color-light);
+}
+
+
+.card1{
+    background-color: var(--green-color);
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    color: white;
+}
