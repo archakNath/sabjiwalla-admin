@@ -62,8 +62,23 @@
                 <button class="button1" id="add-category-button">Add Category</button>
             </div>
         </div>
-        <h1 style="margin-top: 10px; cursor: pointer;" id="category-list-header">Category List <img src="/assets/icon/down-arrow.png" alt="" style="width: 15px;"></h1>
+        <h1 style="margin-top: 10px; cursor: pointer;" id="category-list-header">Category List <img
+                src="/assets/icon/down-arrow.png" alt="" style="width: 15px;"></h1>
         <div id="category-list">
+        </div>
+        <h1 style="margin-top: 10px; cursor: pointer;" id="add-banner-header">Add Banner <img
+                src="/assets/icon/down-arrow.png" alt="" style="width: 15px;"></h1>
+        <div id="add-banner">
+            <img src="/assets/images/default image.jpg" alt="">
+            <div>
+                <button class="button1" id="pick-banner">Pick Banner</button>
+                <button class="button1" id="upload-banner">Upload Banner</button>
+            </div>
+        </div>
+
+        <h1 style="margin-top: 10px; cursor: pointer;" id="banner-list-header">Banner List <img
+                src="/assets/icon/down-arrow.png" alt="" style="width: 15px;"></h1>
+        <div id="banner-list">
         </div>
     </section>
 
@@ -172,6 +187,32 @@
                 });
         }
 
+        async function UploadBannerImage(ImgToUpload) {
+            const metaData = {
+                contentType: ImgToUpload.type
+            }
+
+            const fileName = ImgToUpload.name.replace(/[.#$[\]]/g, '_');
+
+            const storage = getStorage();
+
+            const storageRef = sRef(storage, 'Banner/' + fileName);
+
+            const UploadTask = uploadBytesResumable(storageRef, ImgToUpload, metaData);
+
+            UploadTask.on('state-changed', (snapshot) => {
+                var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            },
+                (error) => {
+                    alert('Error: Image not uploaded');
+                },
+                () => {
+                    getDownloadURL(UploadTask.snapshot.ref).then((getDownloadURL) => {
+                        saveBanner(getDownloadURL, fileName);
+                    });
+                });
+        }
+
         // FUNCTION FOR REALTIME DATABASE 
 
         var realdb = getDatabase();
@@ -205,6 +246,20 @@
                 Image: URL
             }).then(() => {
                 alert('Category saved');
+                location.reload();
+            }).catch((error) => {
+                alert('Error adding data to the database:', error.message);
+            });
+
+        }
+
+        function saveBanner(image, name) {
+
+
+            set(ref(realdb, 'banner/' + name), {
+                Image: image
+            }).then(() => {
+                alert('Banner saved');
                 location.reload();
             }).catch((error) => {
                 alert('Error adding data to the database:', error.message);
@@ -454,7 +509,7 @@
                     //     <span>Vegetable</span>
                     //     <button class="button1">Delete</button>
                     // </div>
-                    
+
                     var indi_category = document.createElement('div');
                     var category_image = document.createElement('img');
                     var category_name = document.createElement('span');
@@ -486,6 +541,72 @@
                                 });
                         }
 
+                    }
+                })
+            })
+
+        // add banner
+
+        const pick_banner_button = document.getElementById('pick-banner');
+        const upload_banner_button = document.getElementById('upload-banner');
+        const banner_preview = document.querySelector('#add-banner img');
+        var bannerFile;
+        pick_banner_button.onclick = () => {
+            var fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.multiple = true;
+            fileInput.click();
+
+            fileInput.addEventListener('change', function (event) {
+                files = event.target.files;
+                var imageUrl = URL.createObjectURL(files[0]);
+                banner_preview.src = imageUrl;
+                bannerFile = files[0];
+            });
+        };
+
+        upload_banner_button.onclick = () => {
+            UploadBannerImage(bannerFile);
+        }
+
+        const bannerlist = document.getElementById('banner-list');
+        get(child(dataRef, "banner"))
+            .then((snapshot) => {
+                var values = [];
+                snapshot.forEach(element => {
+
+                    // <div id="banner-list">
+                    //     <div>
+                    //         <img src="/assets/images/default image.jpg" alt="">
+                    //             <img src="/assets/icon/cross-white.png" alt="">
+                    //             </div>
+                    //     </div>
+
+                    var banner_image = document.createElement('img');
+                    var cross = document.createElement('img');
+                    var banner_container = document.createElement('div');
+
+                    banner_image.src = element.val().Image;
+                    cross.src = '/assets/icon/cross-white.png';
+                    banner_container.appendChild(banner_image);
+                    banner_container.appendChild(cross);
+                    bannerlist.appendChild(banner_container);
+
+                    cross.onclick = () => {
+                        var result = window.confirm("Do you want to remove " + element.key + "?");
+                        if (result) {
+                            remove(ref(realdb, 'banner/' + element.key))
+                                .then(() => {
+                                    // Success: Delete completed
+                                    alert("Delete successful");
+                                    location.reload();
+                                })
+                                .catch((error) => {
+                                    // Error: Something went wrong
+                                    alert("Error deleting: " + error.message);
+                                });
+                        }
                     }
                 })
             })

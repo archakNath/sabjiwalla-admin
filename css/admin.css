@@ -231,3 +231,58 @@ section#uploading-message{
     object-fit: cover;
     border-radius: 10px;
 }
+
+#add-banner{
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+}
+#add-banner img{
+    margin-top: 10px;
+    width: 400px;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+}
+
+#banner-list{
+    display: none;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+#banner-list div{
+    /* overflow: hidden; */
+    background-color: red;
+    width: fit-content;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+}
+
+#banner-list div img:nth-child(1){
+    border-radius: 9px;
+    width: 200px;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+}
+
+#banner-list div img:nth-child(2){
+    width: 50px;
+    cursor: pointer;
+}
+
+@media(max-width:500px){
+    #add-banner img{
+        width: 100%;
+    }
+
+    #banner-list div img:nth-child(1){
+        width: 300px;
+    }
+}

@@ -72,3 +72,33 @@ category_list_header.onclick = () => {
         category_list.style.display = 'none';
     }
 };
+
+const add_banner_header = document.getElementById('add-banner-header');
+const add_banner = document.getElementById('add-banner');
+const add_banner_header_arrow = document.querySelector('#add-banner-header img')
+
+add_banner_header.onclick = () => {
+    const computedStyle = window.getComputedStyle(add_banner);
+    if (computedStyle.display === 'none') {
+        add_banner_header_arrow.style.transform = 'rotate(180deg)';
+        add_banner.style.display = 'flex';
+    } else {
+        add_banner_header_arrow.style.transform = 'rotate(0deg)';
+        add_banner.style.display = 'none';
+    }
+};
+
+const banner_list_header = document.getElementById('banner-list-header');
+const banner_list = document.getElementById('banner-list');
+const banner_list_header_arrow = document.querySelector('#banner-list-header img')
+
+banner_list_header.onclick = () => {
+    const computedStyle = window.getComputedStyle(banner_list);
+    if (computedStyle.display === 'none') {
+        banner_list_header_arrow.style.transform = 'rotate(180deg)';
+        banner_list.style.display = 'flex';
+    } else {
+        banner_list_header_arrow.style.transform = 'rotate(0deg)';
+        banner_list.style.display = 'none';
+    }
+};
