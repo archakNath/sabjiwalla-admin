@@ -19,6 +19,7 @@
     <header>
         <button class="button1" id="dashboard-button">Dashboard</button>
         <button class="button1" id="edit-item-button">Edit items</button>
+        <button class="button1" id="edit-page-button">Edit Page</button>
     </header>
 
 
@@ -47,6 +48,20 @@
             <button class="button1" id="upload-button">Upload</button>
         </div>
         <div id="list"></div>
+    </section>
+
+    <section id="edit-page-section">
+        <div id="add-category-section">
+            <div class="image-preview">
+                <span>Category Name</span>
+            </div>
+            <div>
+                <h1>Add Category</h1>
+                <button class="button1" id="pick-category-image">select image</button>
+                <input type="text" name="" id="" placeholder="Category Name">
+                <button class="button1" id="add-category-button">Add Category</button>
+            </div>
+        </div>
     </section>
 
     <script src="/js/admin.js"></script>
@@ -129,6 +144,31 @@
             }
         }
 
+        async function UploadCategoryImage(ImgToUpload, name) {
+            const metaData = {
+                contentType: ImgToUpload.type
+            }
+
+            const storage = getStorage();
+
+            const storageRef = sRef(storage, 'Category' + "/" + name);
+
+            const UploadTask = uploadBytesResumable(storageRef, ImgToUpload, metaData);
+
+            UploadTask.on('state-changed', (snapshot) => {
+                var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            },
+                (error) => {
+                    alert('Error: Image not uploaded');
+                },
+                () => {
+                    getDownloadURL(UploadTask.snapshot.ref).then((getDownloadURL) => {
+                        saveCategory(getDownloadURL, name);
+                        console.log(getDownloadURL);
+                    });
+                });
+        }
+
         // FUNCTION FOR REALTIME DATABASE 
 
         var realdb = getDatabase();
@@ -149,6 +189,20 @@
                 setTimeout(() => {
                     location.reload();
                 }, 2500);
+            }).catch((error) => {
+                alert('Error adding data to the database:', error.message);
+            });
+
+        }
+
+        function saveCategory(URL, name) {
+
+            set(ref(realdb, 'category/' + name), {
+                Name: name,
+                Image: URL
+            }).then(() => {
+                alert('Category saved');
+                location.reload();
             }).catch((error) => {
                 alert('Error adding data to the database:', error.message);
             });
@@ -330,25 +384,62 @@
                     }
 
                     delete_button.onclick = function () {
-                        var result = window.confirm("Do you want to remove "+element.key+" ?");
+                        var result = window.confirm("Do you want to remove " + element.key + " ?");
                         if (result) {
                             remove(ref(realdb, 'products/' + element.key))
-                            .then(() => {
-                                // Success: Delete completed
-                                alert("Delete successful");
-                                location.reload();
-                            })
-                            .catch((error) => {
-                                // Error: Something went wrong
-                                alert("Error deleting: " + error.message);
-                            });
+                                .then(() => {
+                                    // Success: Delete completed
+                                    alert("Delete successful");
+                                    location.reload();
+                                })
+                                .catch((error) => {
+                                    // Error: Something went wrong
+                                    alert("Error deleting: " + error.message);
+                                });
                         }
-                        
+
                     }
 
 
                 })
             })
+
+        // edit page
+
+        const add_category_button = document.getElementById('add-category-button');
+        const category_image_preview = document.querySelector('#add-category-section .image-preview');
+        const pick_category_image = document.getElementById('pick-category-image');
+        const category_name = document.querySelector("#add-category-section .image-preview span");
+        const category_name_in = document.querySelector("#add-category-section div:nth-child(2) input");
+
+        var categoryFile;
+        pick_category_image.onclick = () => {
+            var fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.multiple = true;
+            fileInput.click();
+
+            fileInput.addEventListener('change', function (event) {
+                files = event.target.files;
+                var imageUrl = URL.createObjectURL(files[0]);
+                category_image_preview.style.backgroundImage = 'url(' + imageUrl + ')';
+                categoryFile = files[0];
+            });
+        };
+
+        category_name_in.addEventListener('input', () => {
+            if (category_name_in.value === '') {
+                category_name.textContent = 'Category Name';
+            } else {
+                category_name.textContent = category_name_in.value;
+            }
+        });
+
+
+        add_category_button.onclick = () => {
+            UploadCategoryImage(categoryFile, category_name.textContent);
+        }
 
     </script>
 </body>
