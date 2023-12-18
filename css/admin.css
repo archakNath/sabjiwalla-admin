@@ -212,3 +212,22 @@ section#uploading-message{
 #add-category-section #add-category-button{
     margin-top: 5px;
 }
+
+#category-list{
+    margin-top: 10px;
+}
+
+#category-list .indi-category{
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#category-list img{
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+}
