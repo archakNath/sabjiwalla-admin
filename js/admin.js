@@ -58,5 +58,17 @@ add_item_button.onclick = () => {
 
 // edit page
 
+const category_list_header = document.getElementById('category-list-header');
+const category_list = document.getElementById('category-list');
+const category_list_header_arrow = document.querySelector('#category-list-header img')
 
-
+category_list_header.onclick = () => {
+    const computedStyle = window.getComputedStyle(category_list);
+    if (computedStyle.display === 'none') {
+        category_list_header_arrow.style.transform = 'rotate(180deg)';
+        category_list.style.display = 'block';
+    } else {
+        category_list_header_arrow.style.transform = 'rotate(0deg)';
+        category_list.style.display = 'none';
+    }
+};

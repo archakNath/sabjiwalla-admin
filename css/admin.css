@@ -214,7 +214,7 @@ section#uploading-message{
 }
 
 #category-list{
-    margin-top: 10px;
+    display: none;
 }
 
 #category-list .indi-category{
