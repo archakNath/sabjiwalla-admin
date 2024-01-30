@@ -28,6 +28,34 @@ section#uploading-message{
 
 /* ====== DASHBOARD ====== */
 
+#new-orders{
+    margin-top: 10px;
+}
+
+#new-orders .indi-item{
+    background-color: rgba(128, 128, 128, 0.123);
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+#new-orders .indi-item .item{
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 10px;
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#new-orders .indi-item h3{
+    margin-top: 5px;
+}
+
+#new-orders .indi-item button{
+    margin-top: 5px;
+}
+
 /* ====== EDIT ITEMS ====== */
 
 #edit-item-section #add-product{

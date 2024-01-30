@@ -24,7 +24,9 @@
 
 
     <section id="dashboard-section">
-        Dashboard
+        <h1>Orders Placed</h1>
+        <div id="new-orders">
+        </div>
     </section>
 
     <section id="edit-item-section">
@@ -353,6 +355,76 @@
                 UploadProcess();
             }
         }
+
+        // READ AND LIST DATA FROM DB
+        var database = getDatabase();
+        const orderlist = document.getElementById('new-orders');
+        var dataRef = ref(database);
+
+        get(child(dataRef, "orders"))
+            .then((snapshot) => {
+                var values = [];
+                snapshot.forEach(element => {
+            // <div class="indi-item">
+            //     <strong>Anjali Moule</strong>
+            //     <p>Vill - Moulegram.  P.o - karanjali. P.s. - kulpi. Dist - South 24 pgs. , , Kulpi, West Bengal , 743348</p>
+            //     <p>2024-01-20T14:18:02HRS</p>
+            //     <div class="item-list">
+            //         <div class="item">
+            //             <p>Garlic(1*100g)</p>
+            //             <p>₹120</p>
+            //         </div>
+            //     </div>
+            //     <button class="button2">Delivered</button>
+            // </div>
+
+                const indi_item = document.createElement("div");
+                const customer_name = document.createElement("strong");
+                const address = document.createElement("p");
+                const time = document.createElement("p");
+                const item_list = document.createElement("div");
+                const tot = document.createElement('h3');
+                const delivery_btn = document.createElement("button");
+                var item, item_name, item_price, price, total = 0;
+                indi_item.setAttribute("class", "indi-item");
+                item_list.setAttribute("class", "item-list");
+                delivery_btn.setAttribute("class", "button2");
+                delivery_btn.textContent = "Delivered";
+
+                customer_name.textContent = element.val().Name;
+                address.textContent = element.val().Address;
+                time.textContent = element.val().Date + "HRS";
+                const product_list = JSON.parse(element.val().List);
+                product_list.forEach(product => {
+                    item = document.createElement("div");
+                    item_name = document.createElement("p");
+                    item_price = document.createElement("p");
+                    item_name.textContent = product.Name+'('+product.Times+'*'+product.Base+product.Type+')';
+                    if(product.Type == "gram"){
+                        price = product.Price * product.Base / 1000;
+                    } else {
+                        price = product.Price * product.Base;
+                    }
+                    price = price - (price * product.Discount / 100);
+                    price = price * product.Times;
+                    total += price;
+                    item_price.textContent = '₹'+price;
+                    item.setAttribute("class", "item");
+                item.appendChild(item_name);
+                item.appendChild(item_price);
+                    item_list.appendChild(item);
+                });
+
+                tot.textContent = 'Total: ₹'+total;
+                indi_item.appendChild(customer_name);
+                indi_item.appendChild(time);
+                indi_item.appendChild(address);
+                indi_item.appendChild(item_list);
+                indi_item.appendChild(tot);
+                indi_item.appendChild(delivery_btn);
+                orderlist.appendChild(indi_item);
+                })
+            })
 
         // READ AND LIST DATA FROM DB
         var database = getDatabase();
