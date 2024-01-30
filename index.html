@@ -40,8 +40,13 @@
             <input class="input" type="text" name="name" id="product-name" placeholder="Product Name">
             <textarea name="" id="product-description" cols="" rows="2" class="input"
                 placeholder="Description (Optional)"></textarea>
-            <input type="number" name="" id="product-price" placeholder="Price per kg (₹)" class="input">
-            <input type="text" name="" id="product-base" placeholder="Base Quantity in g (eg. 500 = 500g)"
+            <div class="type">
+                <button id="gram" class="button2 active">gram</button>
+                <button id="piece" class="button2">piece</button>
+                <button id="kg" class="button2">kg</button>
+            </div>
+            <input type="number" name="" id="product-price" placeholder="Price per kg / piece (₹)" class="input">
+            <input type="text" name="" id="product-base" placeholder="Base Quantity (500g/2kg/7piece)"
                 class="input">
             <input type="number" name="" id="product-discount" placeholder="Discount (%)" class="input">
             <input type="text" name="" id="product-category" placeholder="Category (eg. Fruit/Vegetable)" class="input">
@@ -103,6 +108,20 @@
             appId: "1:133860441354:web:f29e8953a336bb5d8f4ef3",
             measurementId: "G-DGXTDJWKM1"
         };
+
+        var item_type = "gram";
+        const type_button = document.querySelectorAll("#edit-item-section .type button");
+        type_button.forEach(button => {
+            button.onclick = () => {
+                for (let i = 0; i < type_button.length; i++) {
+                    const btn = type_button[i];
+                    btn.removeAttribute("class", "active");
+                    btn.setAttribute("class", "button2")
+                }
+                button.setAttribute("class", "active  button2");
+                item_type = button.textContent;
+            }
+        });
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -226,7 +245,8 @@
                 Price: product_price.value,
                 Base: product_base.value,
                 Category: product_category.value,
-                Discount: product_discount.value
+                Discount: product_discount.value,
+                Type: item_type
             }).then(() => {
                 console.log('Data added to the database successfully');
                 upload_message.innerHTML = "Data added to database successfully"
@@ -374,7 +394,7 @@
                     let delete_button = document.createElement("button");
 
                     // product details has been filled
-                    product_name_in.textContent = element.val().Name;
+                    product_name_in.textContent = element.val().Name + " ("+element.val().Type+")";
                     product_description_in.value = element.val().Description;
                     product_description_in.placeholder = "Description"
                     product_category_in.value = element.val().Category; // Use .value here

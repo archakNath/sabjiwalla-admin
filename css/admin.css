@@ -106,6 +106,10 @@ section#uploading-message{
     font-size: 12px;
 }
 
+#edit-item-section .type{
+    margin-bottom: 10px;
+}
+
 #list{
     margin-top: 20px;
     padding: 10px;

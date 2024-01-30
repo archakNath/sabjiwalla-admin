@@ -11,7 +11,7 @@ const add_item_button = document.getElementById("add-item-button");
 const add_item_section = document.getElementById("add-product");
 
 // setting initial settings
-change_screen(3)
+change_screen(2);
 
 // changing screen depending upon button clicked
 dashboard_button.addEventListener("click", () => {
